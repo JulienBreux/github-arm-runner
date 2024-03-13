@@ -7,8 +7,11 @@ export PROJECT_ID=
 
 export NETWORK_NAME=runner-network
 
+export IMAGE_REPOSITORY=github-runner-arm
 export IMAGE_NAME=github-runner-arm
-export IMAGE_STABLE_TAG=stable
+export IMAGE_TAG=stable
+export IMAGE_LOCATION=us-central1
+export IMAGE_FQDN=${IMAGE_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${IMAGE_REPOSITORY}/${IMAGE_NAME}
 
 export GCP_SERVICE_ACCOUNT_NAME=github-runner
 export GCP_SERVICE_ACCOUNT_ROLE=roles/editor
@@ -36,8 +39,17 @@ cloudbuild.googleapis.com
 gcloud compute networks create ${NETWORK_NAME} \
 --subnet-mode=auto
 
-# Build default image
-gcloud builds submit --tag gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${IMAGE_STABLE_TAG} .
+# Create artifacts registry
+gcloud artifacts repositories create ${IMAGE_REPOSITORY} \
+--repository-format=docker \
+--location=${IMAGE_LOCATION}
+
+# Connect to artifacts registry repository
+gcloud auth configure-docker ${IMAGE_LOCATION}-docker.pkg.dev
+
+# Build and push image
+docker build . -t ${IMAGE_FQDN}:${IMAGE_TAG}
+docker push ${IMAGE_FQDN}:${IMAGE_TAG}
 
 # Create GKE autopilot cluster
 gcloud beta container clusters create-auto ${GKE_CLUSTER_NAME} \
@@ -61,6 +73,12 @@ gcloud projects add-iam-policy-binding ${PROJECT_ID} \
 # Create GKE service account
 kubectl create serviceaccount ${GKE_SERVICE_ACCOUNT_NAME} \
 -n ${GKE_NAMESPACE}
+
+# Set permission to pull image
+gcloud artifacts repositories add-iam-policy-binding \
+--location=<location> \
+--member=${GCP_SERVICE_ACCOUNT_NAME}@${PROJECT_ID}.iam.gserviceaccount.com \
+--role="roles/artifactregistry.reader"
 
 # Bind GKE service account to GCP service account
 gcloud iam service-accounts add-iam-policy-binding \
