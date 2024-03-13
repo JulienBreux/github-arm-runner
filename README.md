@@ -20,6 +20,10 @@ export GKE_NAMESPACE=default
 export GKE_SERVICE_ACCOUNT_NAME=github-runner
 export GKE_SECRET_NAME=github-token
 
+export REPO_OWNER=JulienBreux
+export REPO_NAME=github-arm-runner
+export REPO_URL=https://github.com/JulienBreux/github-arm-runner/
+
 # Select current project
 gcloud config set project ${PROJECT_ID}
 
@@ -74,4 +78,12 @@ iam.gke.io/gcp-service-account=${GCP_SERVICE_ACCOUNT_NAME}@${PROJECT_ID}.iam.gse
 kubectl create secret generic ${GKE_SECRET_NAME} \
 --from-literal=GITHUB_TOKEN=${GITHUB_TOKEN} \
 -n ${GKE_NAMESPACE}
+
+kustomize edit set image gcr.io/PROJECT_ID/${IMAGE_NAME}:${IMAGE_STABLE_TAG}=gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${IMAGE_STABLE_TAG}
+
+cat > runner.env  << EOF
+REPO_OWNER=${REPO_OWNER}
+REPO_NAME=${REPO_NAME}
+ACTIONS_RUNNER_INPUT_URL=${REPO_URL}
+EOF
 ```
