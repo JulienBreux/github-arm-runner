@@ -13,7 +13,7 @@ export IMAGE_STABLE_TAG=stable
 export GCP_SERVICE_ACCOUNT_NAME=github-runner
 export GCP_SERVICE_ACCOUNT_ROLE=roles/editor
 
-export GKE_CLUSTER_NAME=github-runner-cluster
+export GKE_CLUSTER_NAME=github-runner
 export GKE_CLUSTER_REGION=us-central1
 export GKE_CLUSTER_RELEASE_CHANNEL=regular
 export GKE_NAMESPACE=default
@@ -39,11 +39,11 @@ gcloud builds submit --tag gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${IMAGE_STABLE_TAG
 gcloud beta container clusters create-auto ${GKE_CLUSTER_NAME} \
 --network ${NETWORK_NAME} \
 --release-channel ${GKE_CLUSTER_RELEASE_CHANNEL} \
---workload-pool=${PROJECT_ID}.svc.id.goog \
 --region ${GKE_CLUSTER_REGION}
 
 # Connect to GKE cluster
-gcloud container clusters get-credentials ${GKE_CLUSTER_NAME}
+gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} \
+--region ${GKE_CLUSTER_REGION}
 
 # Create GCP service account and retreive email
 gcloud iam service-accounts create ${GCP_SERVICE_ACCOUNT_NAME} --display-name=${GCP_SERVICE_ACCOUNT_NAME}
