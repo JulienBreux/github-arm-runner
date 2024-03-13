@@ -75,9 +75,9 @@ kubectl create serviceaccount ${GKE_SERVICE_ACCOUNT_NAME} \
 -n ${GKE_NAMESPACE}
 
 # Set permission to pull image
-gcloud artifacts repositories add-iam-policy-binding \
---location=<location> \
---member=${GCP_SERVICE_ACCOUNT_NAME}@${PROJECT_ID}.iam.gserviceaccount.com \
+gcloud artifacts repositories add-iam-policy-binding ${IMAGE_REPOSITORY} \
+--location=${IMAGE_LOCATION} \
+--member="serviceAccount:${GCP_SERVICE_ACCOUNT_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" \
 --role="roles/artifactregistry.reader"
 
 # Bind GKE service account to GCP service account
