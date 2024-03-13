@@ -1,6 +1,8 @@
 # 🏃🏼‍♂️‍➡️ Github ARM runner
 
 ```sh
+export GITHUB_TOKEN=
+
 export PROJECT_ID=
 export NETWORK_NAME=runner-network
 export IMAGE_NAME=github-runner-arm
