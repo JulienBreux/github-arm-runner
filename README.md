@@ -4,12 +4,17 @@
 export GITHUB_TOKEN=
 
 export PROJECT_ID=
+
 export NETWORK_NAME=runner-network
+
 export IMAGE_NAME=github-runner-arm
 export IMAGE_STABLE_TAG=stable
-export CLUSTER_NAME=github-runner-cluster
+
 export GCP_SERVICE_ACCOUNT_NAME=github-runner
 export GCP_SERVICE_ACCOUNT_ROLE=roles/editor
+
+export GKE_CLUSTER_NAME=github-runner-cluster
+export GKE_CLUSTER_REGION=us-central1
 export GKE_NAMESPACE=default
 export GKE_SERVICE_ACCOUNT_NAME=github-runner
 export GKE_SECRET_NAME=github-token
@@ -24,19 +29,19 @@ cloudbuild.googleapis.com
 
 # Network creation
 gcloud compute networks create ${NETWORK_NAME} \
---project ${PROJECT_ID} \
 --subnet-mode=auto
 
 # Build default image
 gcloud builds submit --tag gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${IMAGE_STABLE_TAG} .
 
 # Create GKE autopilot cluster
-gcloud beta container clusters create ${CLUSTER_NAME} \
+gcloud beta container clusters create ${GKE_CLUSTER_NAME} \
 --release-channel regular \
---workload-pool=${PROJECT_ID}.svc.id.goog
+--workload-pool=${PROJECT_ID}.svc.id.goog \
+--region ${GKE_CLUSTER_REGION}
 
 # Connect to GKE cluster
-gcloud container clusters get-credentials ${CLUSTER_NAME}
+gcloud container clusters get-credentials ${GKE_CLUSTER_NAME}
 
 # Create GCP service account and retreive email
 gcloud iam service-accounts create ${GCP_SERVICE_ACCOUNT_NAME} --display-name=${GCP_SERVICE_ACCOUNT_NAME}
