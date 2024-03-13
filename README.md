@@ -35,7 +35,8 @@ gcloud compute networks create ${NETWORK_NAME} \
 gcloud builds submit --tag gcr.io/${PROJECT_ID}/${IMAGE_NAME}:${IMAGE_STABLE_TAG} .
 
 # Create GKE autopilot cluster
-gcloud beta container clusters create ${GKE_CLUSTER_NAME} \
+gcloud beta container clusters create-auto ${GKE_CLUSTER_NAME} \
+--network ${NETWORK_NAME} \
 --release-channel regular \
 --workload-pool=${PROJECT_ID}.svc.id.goog \
 --region ${GKE_CLUSTER_REGION}
